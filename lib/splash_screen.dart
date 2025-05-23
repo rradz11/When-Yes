@@ -12,6 +12,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    loadWhenFromHive().then((_) {
+      setState(() {}); // utk reload data ke UI
+    });
 
     // Delay sebelum animasi opacity pada Logo
     Future.delayed(Duration(milliseconds: 500), () {
