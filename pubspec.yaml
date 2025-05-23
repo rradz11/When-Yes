@@ -15,6 +15,9 @@ dependencies:
   google_fonts: ^6.1.0
   intl: ^0.18.1
   table_calendar: ^3.0.9
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.0.15
 
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -23,8 +26,9 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1 # Buat impor ikon aplikasi
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^5.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.6
 
 flutter:
   uses-material-design: true
