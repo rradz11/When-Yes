@@ -5,29 +5,13 @@ import 'add_when_page.dart';
 import 'main.dart';
 
 class YourWhenPage extends StatefulWidget {
-  final List<Map<String, dynamic>> whenList;
-  final List<Map<String, dynamic>>? pinnedWhenList;
-
-  const YourWhenPage({
-    super.key,
-    required this.whenList,
-    this.pinnedWhenList,
-  });
+  const YourWhenPage({super.key});
 
   @override
   State<YourWhenPage> createState() => _YourWhenPageState();
 }
 
 class _YourWhenPageState extends State<YourWhenPage> {
-  List<Map<String, dynamic>> pinnedWhenList = [];
-  late List<Map<String, dynamic>> whenList;
-
-  @override
-  void initState() {
-    super.initState();
-    whenList = List<Map<String, dynamic>>.from(widget.whenList);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,9 +39,9 @@ class _YourWhenPageState extends State<YourWhenPage> {
                   // List When
                   Expanded(
                     child: ListView.builder(
-                      itemCount: whenList.length,
+                      itemCount: globalWhenList.length,
                       itemBuilder: (context, index) {
-                        final whenData = whenList[index];
+                        final whenData = globalWhenList[index];
                         final category = whenData['category'];
 
                         final colorMap = {
@@ -99,16 +83,16 @@ class _YourWhenPageState extends State<YourWhenPage> {
                             );
 
                             if (selected == 'pin') {
-                              if (widget.pinnedWhenList != null) {
-                                setState(() {
-                                  widget.pinnedWhenList!.add(whenData);
-                                });
-                              }
+                              setState(() {
+                                globalPinnedWhenList.add(whenData);
+                              });
+                              await saveWhenToHive(); // simpan ke Hive
                             } else if (selected == 'delete') {
                               setState(() {
-                                widget.pinnedWhenList?.remove(whenData);
-                                whenList.remove(whenData);
+                                globalPinnedWhenList.remove(whenData);
+                                globalWhenList.remove(whenData);
                               });
+                              await saveWhenToHive(); // simpan ke Hive
                             }
                           },
                           child: Container(
@@ -143,7 +127,7 @@ class _YourWhenPageState extends State<YourWhenPage> {
                                           color: const Color(0xFFEAFFF9),
                                         ),
                                       ),
-                                      if (whenData['date'] != null)
+                                      if (whenData['date'] != null && whenData['date'] is DateTime)
                                         Text(
                                           DateFormat.yMMMd().format(whenData['date']),
                                           style: GoogleFonts.dmSans(
@@ -179,9 +163,8 @@ class _YourWhenPageState extends State<YourWhenPage> {
                   );
 
                   if (result != null) {
-                    setState(() {
-                      whenList.add(result); // Nambah ke list utama
-                    });
+                    loadWhenFromHive(); // load dari Hive
+                    setState(() {}); // refresh UI
                   }
 
                 },
@@ -246,25 +229,18 @@ class _YourWhenPageState extends State<YourWhenPage> {
                 icon: Icon(Icons.home),
                 color: Color(0xFFEAFFF9),
               ),
+
+              // Ultah
               IconButton(
                 onPressed: () {
-                  final allWhenList = [
-                    {
-                      'title': 'Wirtz ultah',
-                      'category': 'Birthdays',
-                      'date': DateTime(2025, 5, 3),
-                    },
-                    {
-                      'title': 'Messi ultah',
-                      'category': 'Birthdays',
-                      'date': DateTime(2025, 6, 24),
-                    },
-                  ];
+                  final birthdayList = globalWhenList
+                      .where((item) => item['category'] == 'Birthdays' && item['date'] != null)
+                      .toList();
 
                   Navigator.pushReplacementNamed(
                     context,
                     '/birthdays',
-                    arguments: allWhenList,
+                    arguments: birthdayList,
                   );
                 },
                 icon: Icon(Icons.cake),
@@ -274,7 +250,8 @@ class _YourWhenPageState extends State<YourWhenPage> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => YourWhenPage(whenList: pinnedWhenList)),
+                    MaterialPageRoute(builder: (context) => YourWhenPage(),
+                    ),
                   );
                 },
                 icon: Icon(Icons.app_registration_sharp),
@@ -287,11 +264,13 @@ class _YourWhenPageState extends State<YourWhenPage> {
                 icon: Icon(Icons.calendar_month),
                 color: Color(0xFFEAFFF9),
               ),
+
+              // Explore When Ideas
               IconButton(
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/profile');
+                  Navigator.pushReplacementNamed(context, '/ideas');
                 },
-                icon: Icon(Icons.person),
+                icon: Icon(Icons.lightbulb),
                 color: Color(0xFFEAFFF9),
               ),
             ],
