@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'main.dart';
 
 class AddWhenPage extends StatefulWidget {
   @override
@@ -34,18 +35,23 @@ class _AddWhenPageState extends State<AddWhenPage> {
     }
   }
 
-  void _addWhen() {
+  void _addWhen() async {
     String userInput = _titleController.text.trim();
     String formattedTitle = userInput.isNotEmpty ? "When yes $userInput?" : "";
 
     print("Write your When: $formattedTitle");
     print("Kategori: $selectedCategory");
     print("Tanggal: ${selectedDate != null ? DateFormat.yMMMd().format(selectedDate!) : 'Tidak ditentukan'}");
-    Navigator.pop(context, {
+
+    // Simpan dulu ke global list
+    final newWhen = {
       'title': formattedTitle,
       'category': selectedCategory,
       'date': selectedDate,
-    });
+    };
+    globalWhenList.add(newWhen);
+    Navigator.pop(context, newWhen); // kirim balik ke halaman sebelumnya
+    saveWhenToHive(); // simpan ke Hive
   }
 
   @override
